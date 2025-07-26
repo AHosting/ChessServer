@@ -2,14 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 require('dotenv').config();
-const PostGres_URI = 'postgresql://username:password@localhost:5432/mydatabase';
+//const PostGres_URI = 'postgresql://username:password@localhost:5432/mydatabase';
   
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const pool = new Pool({
-  connectionString: process.env.PG_URI,
+  connectionString: process.env.PostGres_URI,
 });
 
 // Example: Table "users" with columns "username" and "password"
@@ -34,7 +34,24 @@ app.post('/api/login', async (req, res) => {
 app.get('/test', async (req,res) => {
   res.json({ test: true, message: 'This is the test message' });
 });
-        
+
+app.get('/makeDB0674', async (req,res) => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL
+      )
+    `);
+    console.log('✅ Users table ready');
+    res.json({ makedb: true, message: 'Created the DB' });
+  } catch (err) {
+    console.error('❌ Error creating users table:', err);
+    res.json({ makedb: false, message: 'error in making db', error: err });
+  }
+});
+
 app.listen(3000, () => {
   console.log('Server running on http://localhost:3000');
 });
