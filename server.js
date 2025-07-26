@@ -44,11 +44,24 @@ app.get('/makeDB0674', async (req,res) => {
         password TEXT NOT NULL
       )
     `);
-    console.log('✅ Users table ready');
+    console.log('Users table ready');
     res.json({ makedb: true, message: 'Created the DB' });
   } catch (err) {
-    console.error('❌ Error creating users table:', err);
+    console.error('Error creating users table:', err);
     res.json({ makedb: false, message: 'error in making db', error: err });
+  }
+});
+
+app.get('/addToDB0675', async (req,res) => {
+  try {
+    await pool.query(`
+      INSERT INTO users (username, password) VALUES ('user001', 'pwd001')
+    `);
+    console.log('Added a user');
+    res.json({ makedb: true, message: 'Added a user' });
+  } catch (err) {
+    console.error('Error adding a user:', err);
+    res.json({ makedb: false, message: 'Error adding a user', error: err });
   }
 });
 
