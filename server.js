@@ -31,6 +31,10 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+app.get('/test', async (req,res) => {
+  res.json({ test: true, message: 'This is the test message' });
+});
+        
 app.listen(3000, () => {
   console.log('Server running on http://localhost:3000');
 });
