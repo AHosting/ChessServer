@@ -14,6 +14,7 @@ const pool = new Pool({
 
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
+  console.log("Login::",username,":::",password);
   try {
     const query = 'SELECT * FROM users WHERE username = $1 AND password = $2';
     const result = await pool.query(query, [username, password]);
@@ -31,6 +32,7 @@ app.post('/api/login', async (req, res) => {
 
 app.post('/api/signup', async (req, res) => {
   const { username, password } = req.body;
+  console.log("Signup::",username,":::",password);
   try {
     const query = 'INSERT INTO users (username,password) VALUES ($1,$2)';        
     const result = await pool.query(query, [username, password]);
@@ -46,6 +48,7 @@ app.post('/api/signup', async (req, res) => {
 });
 
 app.get('/users0676', async (req,res) => {
+  console.log("Users::");
   try {
     const result = await pool.query("SELECT username from users");
     const usernames = result.rows.map(row => row.username);
