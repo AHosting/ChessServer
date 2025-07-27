@@ -26,7 +26,7 @@ app.post('/api/login', async (req, res) => {
     }
   } catch (err) {
     console.error('Login error:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: 'Server error', error: err  });
   }
 });
 
@@ -43,7 +43,7 @@ app.post('/api/signup', async (req, res) => {
     }
   } catch (err) {
     console.error('Signup error:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: 'Server error', error: err });
   }
 });
 
