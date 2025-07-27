@@ -12,8 +12,6 @@ const pool = new Pool({
   connectionString: process.env.PostGres_URI,
 });
 
-// Example: Table "users" with columns "username" and "password"
-
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -28,6 +26,33 @@ app.post('/api/login', async (req, res) => {
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.post('/api/signup', async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const query = 'INSERT INTO users (username,password) VALUES ($1,$2)';        
+    const result = await pool.query(query, [username, password]);
+    if (result.rowCount > 0) {
+      res.status(201).json({ success: true, message: 'User created successfully' });
+    } else {
+      res.status(401).json({ success: false, message: 'Failed to create user' });
+    }
+  } catch (err) {
+    console.error('Signup error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.get('/users0676', async (req,res) => {
+  try {
+    await pool.query("SELECT username from users");
+    const usernames = result.rows.map(row => row.username);
+    res.json(usernames);
+  } catch (err) {
+    console.error('Error in getting users', err);
+    res.json({ getusers: false, message: 'Error in getting users', error: err });
   }
 });
 
