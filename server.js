@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
+const crypto = require('crypto'); 
 require('dotenv').config();
 //const PostGres_URI = 'postgresql://username:password@localhost:5432/mydatabase';
   
@@ -12,6 +13,8 @@ const pool = new Pool({
   connectionString: process.env.PostGres_URI,
 });
 
+const activeSessions = new Map();
+
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
   console.log("Login::",username,":::",password);
@@ -20,7 +23,9 @@ app.post('/api/login', async (req, res) => {
     const result = await pool.query(query, [username, password]);
 
     if (result.rows.length > 0) {
-      res.json({ success: true, message: 'Login successful' });
+      const token = crypto.randomBytes(32).toString('hex');
+      activeSessions.set(token, { username, loginTime: Date.now() });
+      res.json({ success: true, token, message: 'Login successful' });
     } else {
       res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
@@ -43,6 +48,41 @@ app.post('/api/signup', async (req, res) => {
     }
   } catch (err) {
     console.error('Signup error:', err);
+    res.status(500).json({ success: false, message: 'Server error', error: err });
+  }
+});
+
+function getSession(req){
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) return null;
+  const session = activeSessions.get(token);
+  return session || null;
+}
+
+app.post('/api/postGame', async (req, res) => {
+  const session = getSession(req);
+  if (!session) {
+    return res.status(403).json({ success: false, message: 'Unauthorized. Please login' });
+  }
+  const username = session.username;
+  const { username, gameDetails } = req.body;
+  const { id, color, computer, timeWhite, timeBlack, pgn} = gameDetails;
+  console.log("postGame::",username);
+  try {
+    let query = null;
+    if (id === -1)    
+      query = 'INSERT INTO games (username, color, computer, timeWhite, timeBlack, pgn) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *';       
+    else
+      query = 'UPDATE games SET timeWhite = $4, timeBlack = $5, pgn = $6 WHERE id = $7 RETURNING *';
+    const result = await pool.query(query, [username, color, computer, timeWhite, timeBlack, pgn, id]);
+    if (result.rowCount > 0) {
+      const gameId = result.rows[0].id;
+      res.status(201).json({ success: true, gameId });
+    } else {
+      res.status(401).json({ success: false});
+    }
+  } catch (err) {
+    console.error('Error in postGame:', err);
     res.status(500).json({ success: false, message: 'Server error', error: err });
   }
 });
