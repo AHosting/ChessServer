@@ -80,6 +80,27 @@ app.get('/makeDB0674', async (req,res) => {
   }
 });
 
+app.get('/makeDBPlay0673', async (req,res) => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS games (
+        id SERIAL PRIMARY KEY,
+        username TEXT NOT NULL,
+        color TEXT NOT NULL,
+        computer TEXT NOT NULL,
+        timeWhite TEXT NOT NULL,
+        timeBlack TEXT NOT NULL,
+        pgn TEXT NOT NULL
+      )
+    `);
+    console.log('Games table ready');
+    res.json({ makedb: true, message: 'Created the Games table' });
+  } catch (err) {
+    console.error('Error creating games table:', err);
+    res.json({ makedb: false, message: 'error in making games table', error: err });
+  }
+});
+
 app.get('/addToDB0675', async (req,res) => {
   try {
     await pool.query(`
