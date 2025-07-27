@@ -47,7 +47,7 @@ app.post('/api/signup', async (req, res) => {
 
 app.get('/users0676', async (req,res) => {
   try {
-    await pool.query("SELECT username from users");
+    const result = await pool.query("SELECT username from users");
     const usernames = result.rows.map(row => row.username);
     res.json(usernames);
   } catch (err) {
