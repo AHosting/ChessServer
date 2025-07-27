@@ -42,7 +42,9 @@ app.post('/api/signup', async (req, res) => {
     const query = 'INSERT INTO users (username,password) VALUES ($1,$2)';        
     const result = await pool.query(query, [username, password]);
     if (result.rowCount > 0) {
-      res.status(201).json({ success: true, message: 'User created successfully' });
+      const token = crypto.randomBytes(32).toString('hex');
+      activeSessions.set(token, { username, loginTime: Date.now() });
+      res.status(201).json({ success: true, token, message: 'User created successfully' });
     } else {
       res.status(401).json({ success: false, message: 'Failed to create user' });
     }
