@@ -104,7 +104,7 @@ app.get('/api/getGames', async (req,res) => {
   const username = session.username;
   console.log("GET Games for user::",username);
   try {
-    const result = await pool.query("SELECT * from games WHERE username = $1",[username]);
+    const result = await pool.query("SELECT * from games WHERE username = $1 ORDER BY id DESC",[username]);
     res.json({ success: true, games: result.rows });
   } catch (err) {
     console.error('Error in getting games', err);
