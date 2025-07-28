@@ -62,14 +62,15 @@ function getSession(req){
 }
 
 app.post('/api/postGame', async (req, res) => {
+  console.log("PostGame::");  
   const session = getSession(req);
   if (!session) {
     return res.status(403).json({ success: false, message: 'Unauthorized. Please login' });
   }
   const username = session.username;
-  const { username, gameDetails } = req.body;
+  const { gameDetails } = req.body;
   const { id, color, computer, timeWhite, timeBlack, pgn} = gameDetails;
-  console.log("postGame::",username);
+  console.log("PostGame::",id,":::",username,":::",pgn);  
   try {
     let query = null;
     if (id === -1)    
@@ -98,6 +99,17 @@ app.get('/users0676', async (req,res) => {
   } catch (err) {
     console.error('Error in getting users', err);
     res.json({ getusers: false, message: 'Error in getting users', error: err });
+  }
+});
+
+app.get('/games0677', async (req,res) => {
+  console.log("GET Games::");
+  try {
+    const result = await pool.query("SELECT * from games");
+    res.json({ success: true, games: result.rows });
+  } catch (err) {
+    console.error('Error in getting games', err);
+    res.json({ getusers: false, message: 'Error in getting games', error: err });
   }
 });
 
