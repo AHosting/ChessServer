@@ -112,7 +112,7 @@ app.get('/api/getGames', async (req,res) => {
   }
 });
 
-app.get('/users0676', async (req,res) => {
+app.get('/test/users', async (req,res) => {
   console.log("Users::");
   try {
     const result = await pool.query("SELECT username from users");
@@ -124,7 +124,7 @@ app.get('/users0676', async (req,res) => {
   }
 });
 
-app.get('/games0677', async (req,res) => {
+app.get('/test/games', async (req,res) => {
   console.log("GET Games::");
   try {
     const result = await pool.query("SELECT * from games");
@@ -135,59 +135,8 @@ app.get('/games0677', async (req,res) => {
   }
 });
 
-app.get('/test', async (req,res) => {
+app.get('/test/basic', async (req,res) => {
   res.json({ test: true, message: 'This is the test message' });
-});
-
-app.get('/makeDB0674', async (req,res) => {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        username TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL
-      )
-    `);
-    console.log('Users table ready');
-    res.json({ makedb: true, message: 'Created the DB' });
-  } catch (err) {
-    console.error('Error creating users table:', err);
-    res.json({ makedb: false, message: 'error in making db', error: err });
-  }
-});
-
-app.get('/makeDBPlay0673', async (req,res) => {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS games (
-        id SERIAL PRIMARY KEY,
-        username TEXT NOT NULL,
-        color TEXT NOT NULL,
-        computer TEXT NOT NULL,
-        timewhite TEXT NOT NULL,
-        timeblack TEXT NOT NULL,
-        pgn TEXT NOT NULL
-      )
-    `);
-    console.log('Games table ready');
-    res.json({ makedb: true, message: 'Created the Games table' });
-  } catch (err) {
-    console.error('Error creating games table:', err);
-    res.json({ makedb: false, message: 'error in making games table', error: err });
-  }
-});
-
-app.get('/addToDB0675', async (req,res) => {
-  try {
-    await pool.query(`
-      INSERT INTO users (username, password) VALUES ('user001', 'pwd001')
-    `);
-    console.log('Added a user');
-    res.json({ makedb: true, message: 'Added a user' });
-  } catch (err) {
-    console.error('Error adding a user:', err);
-    res.json({ makedb: false, message: 'Error adding a user', error: err });
-  }
 });
 
 app.listen(3000, () => {
