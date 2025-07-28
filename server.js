@@ -75,11 +75,11 @@ app.post('/api/postGame', async (req, res) => {
     let query = null;
     let params = [];
     if (id === -1) {
-      query = 'INSERT INTO games (username, color, computer, timeWhite, timeBlack, pgn) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *';       
+      query = 'INSERT INTO games (username, color, computer, timewhite, timeblack, pgn) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *';       
       params = [username, color, computer, timeWhite, timeBlack, pgn];
     }
     else {
-      query = 'UPDATE games SET timeWhite = $1, timeBlack = $2, pgn = $3 WHERE id = $4 RETURNING *';
+      query = 'UPDATE games SET timewhite = $1, timeblack = $2, pgn = $3 WHERE id = $4 RETURNING *';
       params = [timeWhite, timeBlack, pgn, id];
     }
     const result = await pool.query(query, params);
@@ -164,8 +164,8 @@ app.get('/makeDBPlay0673', async (req,res) => {
         username TEXT NOT NULL,
         color TEXT NOT NULL,
         computer TEXT NOT NULL,
-        timeWhite TEXT NOT NULL,
-        timeBlack TEXT NOT NULL,
+        timewhite TEXT NOT NULL,
+        timeblack TEXT NOT NULL,
         pgn TEXT NOT NULL
       )
     `);
