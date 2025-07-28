@@ -73,11 +73,16 @@ app.post('/api/postGame', async (req, res) => {
   console.log("PostGame::",id,":::",username,":::",pgn);  
   try {
     let query = null;
-    if (id === -1)    
+    let params = [];
+    if (id === -1) {
       query = 'INSERT INTO games (username, color, computer, timeWhite, timeBlack, pgn) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *';       
-    else
-      query = 'UPDATE games SET timeWhite = $4, timeBlack = $5, pgn = $6 WHERE id = $7 RETURNING *';
-    const result = await pool.query(query, [username, color, computer, timeWhite, timeBlack, pgn, id]);
+      params = [username, color, computer, timeWhite, timeBlack, pgn];
+    }
+    else {
+      query = 'UPDATE games SET timeWhite = $1, timeBlack = $2, pgn = $3 WHERE id = $4 RETURNING *';
+      params = [timeWhite, timeBlack, pgn, id];
+    }
+    const result = await pool.query(query, params);
     if (result.rowCount > 0) {
       const gameId = result.rows[0].id;
       res.status(201).json({ success: true, gameId });
