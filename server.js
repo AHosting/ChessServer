@@ -95,6 +95,23 @@ app.post('/api/postGame', async (req, res) => {
   }
 });
 
+app.get('/api/getGames', async (req,res) => {
+  console.log("GET Games for user::");
+  const session = getSession(req);
+  if (!session) {
+    return res.status(403).json({ success: false, message: 'Unauthorized. Please login' });
+  }
+  const username = session.username;
+  console.log("GET Games for user::",username);
+  try {
+    const result = await pool.query("SELECT * from games WHERE username = $1",[username]);
+    res.json({ success: true, games: result.rows });
+  } catch (err) {
+    console.error('Error in getting games', err);
+    res.json({ getusers: false, message: 'Error in getting games', error: err });
+  }
+});
+
 app.get('/users0676', async (req,res) => {
   console.log("Users::");
   try {
