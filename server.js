@@ -168,7 +168,7 @@ app.get('/test/games', async (req,res) => {
 });
 
 app.get('/test/basic', async (req,res) => {
-  res.json({ test: true, message: 'This is the test message' });
+  res.json({ test: true, message: 'This is the test message...' });
 });
 app.get('/test/session', async (req,res) => {
   const sessions = Array.from(activeSessions.values());
