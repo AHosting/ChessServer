@@ -15,16 +15,33 @@ const pool = new Pool({
 
 const activeSessions = new Map();
 
+function saveToken(username){
+  const token = crypto.randomBytes(32).toString('hex');
+  const query = 'INSERT INTO tokens (username,token) VALUES ($1,$2)';
+  const result = await pool.query(query, [username, token]);
+  if (result.rowCount > 0) {
+    activeSessions.set(token, { username, loginTime: Date.now() });
+    return token;
+  }
+  return null;
+}
+
+function removeToken(token){
+  activeSessions.delete(token);
+  const query = 'DELETE FROM tokens WHERE token=$1';
+  const result = await pool.query(query, [token]);
+}
+
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
   console.log("Login::",username,":::",password);
   try {
     const query = 'SELECT * FROM users WHERE username = $1 AND password = $2';
     const result = await pool.query(query, [username, password]);
-
-    if (result.rows.length > 0) {
-      const token = crypto.randomBytes(32).toString('hex');
-      activeSessions.set(token, { username, loginTime: Date.now() });
+    let token = null;
+    if (result.rows.length > 0)
+      token = saveToken(username);
+    if (token) {
       res.json({ success: true, token, message: 'Login successful' });
     } else {
       res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -41,9 +58,10 @@ app.post('/api/signup', async (req, res) => {
   try {
     const query = 'INSERT INTO users (username,password) VALUES ($1,$2)';        
     const result = await pool.query(query, [username, password]);
-    if (result.rowCount > 0) {
-      const token = crypto.randomBytes(32).toString('hex');
-      activeSessions.set(token, { username, loginTime: Date.now() });
+    let token = null;
+    if (result.rows.length > 0)
+      token = saveToken(username);
+    if (token) {
       res.status(201).json({ success: true, token, message: 'User created successfully' });
     } else {
       res.status(401).json({ success: false, message: 'Failed to create user' });
@@ -54,11 +72,25 @@ app.post('/api/signup', async (req, res) => {
   }
 });
 
+app.get('/api/logout', async (req,res) => {
+  console.log("GET logout::");
+  const token = req.headers['authorization']?.split(' ')[1];
+  removeToken(token);
+  res.status(201).json({ success: true, message: 'Logged out successfully' });
+}
+
 function getSession(req){
   const token = req.headers['authorization']?.split(' ')[1];
   if (!token) return null;
   const session = activeSessions.get(token);
-  return session || null;
+  if (session) return session;
+  const query = 'SELECT * FROM tokens WHERE token = $1';
+  const result = await pool.query(query, [token]);
+  if (result.rows.length > 0) {
+    username = result.rows[0].username;
+    if (username) return {username} 
+  }    
+  return null;
 }
 
 app.post('/api/postGame', async (req, res) => {
@@ -137,6 +169,11 @@ app.get('/test/games', async (req,res) => {
 
 app.get('/test/basic', async (req,res) => {
   res.json({ test: true, message: 'This is the test message' });
+});
+app.get('/test/session', async (req,res) => {
+  const sessions = Array.from(activeSessions.values());
+  activeSessions.clear();
+  res.json({ test: true, sessions, message: 'This is the test message' });
 });
 
 app.listen(3000, () => {
