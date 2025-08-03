@@ -88,7 +88,8 @@ async function getSession(req){
   const result = await pool.query(query, [token]);
   if (result.rows.length > 0) {
     username = result.rows[0].username;
-    if (username) return {username} 
+    activeSessions.set(token, { username, loginTime: Date.now() });
+    if (username) return {username};
   }    
   return null;
 }
