@@ -79,7 +79,7 @@ app.get('/api/logout', async (req,res) => {
   res.status(201).json({ success: true, message: 'Logged out successfully' });
 });
 
-function getSession(req){
+async function getSession(req){
   const token = req.headers['authorization']?.split(' ')[1];
   if (!token) return null;
   const session = activeSessions.get(token);
@@ -95,7 +95,7 @@ function getSession(req){
 
 app.post('/api/postGame', async (req, res) => {
   console.log("PostGame::");  
-  const session = getSession(req);
+  const session = await getSession(req);
   if (!session) {
     return res.status(403).json({ success: false, message: 'Unauthorized. Please login' });
   }
@@ -129,7 +129,7 @@ app.post('/api/postGame', async (req, res) => {
 
 app.get('/api/getGames', async (req,res) => {
   console.log("GET Games for user::");
-  const session = getSession(req);
+  const session = await getSession(req);
   if (!session) {
     return res.status(403).json({ success: false, message: 'Unauthorized. Please login' });
   }
