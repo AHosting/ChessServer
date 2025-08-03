@@ -15,7 +15,7 @@ const pool = new Pool({
 
 const activeSessions = new Map();
 
-function saveToken(username){
+async function saveToken(username){
   const token = crypto.randomBytes(32).toString('hex');
   const query = 'INSERT INTO tokens (username,token) VALUES ($1,$2)';
   const result = await pool.query(query, [username, token]);
@@ -26,7 +26,7 @@ function saveToken(username){
   return null;
 }
 
-function removeToken(token){
+async function removeToken(token){
   activeSessions.delete(token);
   const query = 'DELETE FROM tokens WHERE token=$1';
   const result = await pool.query(query, [token]);
@@ -40,7 +40,7 @@ app.post('/api/login', async (req, res) => {
     const result = await pool.query(query, [username, password]);
     let token = null;
     if (result.rows.length > 0)
-      token = saveToken(username);
+      token = await saveToken(username);
     if (token) {
       res.json({ success: true, token, message: 'Login successful' });
     } else {
@@ -60,7 +60,7 @@ app.post('/api/signup', async (req, res) => {
     const result = await pool.query(query, [username, password]);
     let token = null;
     if (result.rows.length > 0)
-      token = saveToken(username);
+      token = await saveToken(username);
     if (token) {
       res.status(201).json({ success: true, token, message: 'User created successfully' });
     } else {
@@ -75,7 +75,7 @@ app.post('/api/signup', async (req, res) => {
 app.get('/api/logout', async (req,res) => {
   console.log("GET logout::");
   const token = req.headers['authorization']?.split(' ')[1];
-  removeToken(token);
+  await removeToken(token);
   res.status(201).json({ success: true, message: 'Logged out successfully' });
 }
 
