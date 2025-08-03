@@ -77,7 +77,7 @@ app.get('/api/logout', async (req,res) => {
   const token = req.headers['authorization']?.split(' ')[1];
   await removeToken(token);
   res.status(201).json({ success: true, message: 'Logged out successfully' });
-}
+});
 
 function getSession(req){
   const token = req.headers['authorization']?.split(' ')[1];
